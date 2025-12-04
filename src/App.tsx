@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import CreateRFP from "./pages/CreateRFP";
+import VendorsManagement from "./pages/VendorsManagement";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Route path="/" element={ <Dashboard />}/>
       <Route path="/dashboard" element={ <Dashboard />}/>
       <Route path="/create-rfp" element={<CreateRFP />}/>
+      <Route path="/vendors" element={<VendorsManagement />}/>
     </Routes>
   )
 }
