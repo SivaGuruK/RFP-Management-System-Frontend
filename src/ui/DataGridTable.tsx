@@ -15,6 +15,7 @@ export function DataGridTable<T extends Record<string, any>>({
   columns,
   searchKey,
   addButton,
+  onRowAction,
 }: DataGridTableProps<T>) {
   const [search, setSearch] = useState("");
 
@@ -28,11 +29,13 @@ export function DataGridTable<T extends Record<string, any>>({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      onRowAction,
+    },
   });
 
   return (
     <div className="space-y-6">
-      {/* Search + Add button */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex-1 max-w-md relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -53,38 +56,51 @@ export function DataGridTable<T extends Record<string, any>>({
           </button>
         )}
       </div>
-
-      {/* Table */}
       <div className="overflow-x-auto bg-white rounded-xl border border-gray-200 p-6">
-        <table className="min-w-full">
-          <thead className="border-b border-gray-200">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-left py-3 px-4 font-semibold text-sm text-gray-700"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="py-4 px-4 text-gray-600">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {filteredData.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No results found
+          </div>
+        ) : (
+          <table className="min-w-full">
+            <thead className="border-b border-gray-200">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="text-left py-3 px-4 font-semibold text-sm text-gray-700"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="py-4 px-4 text-gray-600">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
