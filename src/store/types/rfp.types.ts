@@ -1,11 +1,21 @@
+export interface RFPItem {
+  _id?: string;
+  name: string;
+  quantity: number;
+  specifications: string;
+}
+
 export interface RFP {
   _id: string;
   title: string;
   description: string;
-  status: 'draft' | 'sent' | 'responses' | 'evaluated';
-  requirements?: string[];
-  deadline?: string;
   budget?: number;
+  items: RFPItem[];
+  deliveryTimeline?: string;
+  paymentTerms?: string;
+  warrantyRequired?: string;
+  status: 'draft' | 'sent' | 'responses' | 'evaluated';
+  vendorsSent: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -13,9 +23,11 @@ export interface RFP {
 export interface GeneratedRFP {
   title: string;
   description: string;
-  requirements: string[];
-  deadline?: string;
   budget?: number;
+  items: RFPItem[];
+  deliveryTimeline?: string;
+  paymentTerms?: string;
+  warrantyRequired?: string;
 }
 
 export interface DashboardStats {
