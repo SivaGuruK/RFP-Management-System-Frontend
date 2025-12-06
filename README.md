@@ -1,73 +1,191 @@
-# React + TypeScript + Vite
+# RFP Management System – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Project Overview
+**Project Name:** RFP Management System (Frontend)  
+**Description:**  
+An intuitive interface for creating, managing, and reviewing RFPs using AI. Includes vendor management, proposal comparison, and automated email parsing/processing (backend controlled).
 
-Currently, two official plugins are available:
+### Key Features
+- Generate structured RFPs from natural language input.
+- Review, edit, and send RFPs to vendors.
+- Manage RFPs through a dashboard.
+- Manage vendor details and communication.
+- Compare vendor proposals using AI insights.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Goals
+Deliver a seamless and efficient UI for the end-to-end RFP workflow.
 
-## React Compiler
+---
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 2. Project Setup
 
-## Expanding the ESLint configuration
+### a. Prerequisites
+- **Node.js v20+**  
+- **npm v9+**  
+- **Docker v24+** *(optional)*
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### b. Environment Variables
+Create a `.env` file in the project root:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+VITE_API_URL="http://localhost:8080/api/v1"
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 3. Installation Steps
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 🔹 Clone the Repository
+```bash
+git clone https://github.com/SivaGuruK/RFP-Management-System-Frontend.git
+cd RFP-Management-System-Frontend
 ```
+
+---
+
+## 3.1 Manual Installation (Vite + React + TypeScript)
+
+### 🔹 Install Dependencies
+```bash
+npm install
+```
+
+### 🔹 Run the Development Server
+```bash
+npm run dev
+```
+
+App runs at:  
+👉 http://localhost:5173
+
+---
+
+## 3.2 Running with Docker
+
+### 🔹 Build & Start the Container
+```bash
+docker-compose up --build
+```
+
+### 🔹 Stop the Containers
+```bash
+docker-compose down
+```
+
+---
+
+## 4. Tech Stack
+
+| Category | Tech |
+|---------|------|
+| Frontend Framework | React |
+| Bundler | Vite |
+| Language | TypeScript |
+| Styling | TailwindCSS |
+| State Management | Redux Toolkit |
+| Side Effects | Redux Saga |
+| API Client | Axios |
+| Server State | React Query |
+| Notifications | React Toastify |
+| Additional | Custom Hooks, Utility Helpers |
+
+
+---
+
+## 5. API Usage
+
+The frontend communicates with the backend using:
+
+```
+VITE_API_URL=/api/v1
+```
+
+### Common API Routes
+
+## 5. API Usage (Used in Frontend)
+
+| Feature / Usage | Endpoint |
+|-----------------|----------|
+| Dashboard Stats | /rfps/stats/dashboard |
+| Fetch All RFPs | /rfps |
+| Create RFP | /rfps/create-rfp |
+| Generate RFP (AI) | /rfps/generate-rfp |
+| Get Single RFP / Update / Delete | /rfps/:id |
+| Vendor List | /vendors |
+| Create Vendor | /vendors/create-vendor |
+| Update/Delete Vendor | /vendors/:id |
+| Vendor Search | /vendors?search=<query> |
+| Compare Proposals (AI Analysis) | /compare/analyze |
+| Get Comparison by RFP | /compare/rfp/:id |
+| Get All Email Messages | /emails?direction=inbound |
+| Get Parsed Email Messages | /emails?direction=inbound&status=parsed |
+
+
+---
+
+## 6. Decisions & Assumptions
+
+### a. Design Decisions
+- Clean, minimal, functional UI.
+- Reusable component-driven architecture.
+- React Query for caching + state sync.
+- Axios interceptors for consistent API handling.
+
+### b. Assumptions
+- Backend strictly follows `/api/v1` routes.
+- All AI scoring, parsing, cron jobs happen in backend.
+- Proposal comparison depends on backend AI insights.
+
+### c. Limitations
+- English-only content.
+- No offline support.
+- Email parsing depends on backend cron schedules.
+
+---
+
+## 7. AI Tools Usage
+
+### a. Tools Used
+- ChatGPT  
+- Claude AI 
+
+### b. Contributions from AI Tools
+- UI Design Planning  
+- UX improvements for dashboard
+- Redux and Redux Saga setup And Boilerplate
+- Debugging API integration  
+
+---
+
+## 8. Folder Structure (Simplified)
+
+```css
+src/
+ ├── components/
+ ├── pages/
+ ├── store/
+ ├── cards/
+ ├── layouts/
+ ├── utils/
+ ├── hooks/
+ └── main.tsx
+```
+
+---
+
+## 9. Running in Production
+
+### Build Production Bundle
+```bash
+npm run build
+```
+
+### Preview Build
+```bash
+npm run preview
+```
+
+---
+
+## 10. License
+This project is for evaluation purposes only.
