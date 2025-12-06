@@ -15,10 +15,16 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     case "approved":
       colorClass = "bg-green-100 text-green-800";
       break;
+    case "sent":
+      colorClass = "bg-green-100 text-green-800";
+      break;
     case "rejected":
       colorClass = "bg-red-100 text-red-800";
       break;
     case "in progress":
+      colorClass = "bg-blue-100 text-blue-800";
+      break;
+    case "draft":
       colorClass = "bg-blue-100 text-blue-800";
       break;
   }
