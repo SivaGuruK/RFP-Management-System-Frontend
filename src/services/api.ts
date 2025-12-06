@@ -1,6 +1,10 @@
 import axios, { type AxiosInstance,type AxiosResponse, AxiosError } from 'axios';
 import { type RFP,type GeneratedRFP,type DashboardStats } from '../store/types/rfp.types';
 import { type Vendor,type VendorStats } from '../store/types/vendor.types';
+import type{ Email, SendRFPToVendorsPayload, SendRFPToVendorsResponse } from '../store/types/email.types';
+import { type Proposal } from '../store/types/proposal.types';
+import {type ComparisonResult } from '../store/types/comparison.types';
+import {type EmailReceiverStatus } from '../store/types/emailReceiver.types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
@@ -79,6 +83,79 @@ export const vendorAPI = {
 
   updateVendorStats: (id: string, stats: VendorStats): Promise<AxiosResponse<ApiResponse<Vendor>>> =>
     api.put(`/vendors/${id}/stats`, stats),
+};
+
+// Email API
+export const emailAPI = {
+  sendRFPToVendors: (payload: SendRFPToVendorsPayload): Promise<AxiosResponse<ApiResponse<SendRFPToVendorsResponse>>> =>
+    api.post('/emails/send-rfp', payload),
+
+  getAllEmails: (direction?: string, status?: string): Promise<AxiosResponse<ApiResponse<Email[]>>> => {
+    const params: any = {};
+    if (direction) params.direction = direction;
+    if (status) params.status = status;
+    return api.get('/emails', { params });
+  },
+
+  getEmailsByRFP: (rfpId: string): Promise<AxiosResponse<ApiResponse<Email[]>>> =>
+    api.get(`/emails/rfp/${rfpId}`),
+
+  getEmailById: (id: string): Promise<AxiosResponse<ApiResponse<Email>>> =>
+    api.get(`/emails/${id}`),
+};
+
+export const proposalAPI = {
+  getProposalsByRFP: (rfpId: string): Promise<AxiosResponse<ApiResponse<Proposal[]>>> =>
+    api.get(`/proposal/rfp/${rfpId}`),
+
+  getProposalById: (id: string): Promise<AxiosResponse<ApiResponse<Proposal>>> =>
+    api.get(`/proposal/${id}`),
+
+  createProposal: (proposalData: Partial<Proposal>): Promise<AxiosResponse<ApiResponse<Proposal>>> =>
+    api.post('/proposal', proposalData),
+
+  updateProposal: (id: string, proposalData: Partial<Proposal>): Promise<AxiosResponse<ApiResponse<Proposal>>> =>
+    api.put(`/proposal/${id}`, proposalData),
+
+  deleteProposal: (id: string): Promise<AxiosResponse<ApiResponse<{ message: string }>>> =>
+    api.delete(`/proposal/${id}`),
+
+  parseEmailToProposal: (emailId: string): Promise<AxiosResponse<ApiResponse<Proposal>>> =>
+    api.post('/proposal/parse-email', { emailId }),
+
+  simulateVendorResponse: (
+    rfpId: string,
+    vendorId: string,
+    emailBody: string
+  ): Promise<AxiosResponse<ApiResponse<Proposal>>> =>
+    api.post('/proposal/simulate-response', { rfpId, vendorId, emailBody }),
+};
+
+// Comparison API
+export const comparisonAPI = {
+  compareProposals: (rfpId: string): Promise<AxiosResponse<ApiResponse<ComparisonResult>>> =>
+    api.post('/compare/analyze', { rfpId }),
+
+  getComparisonResults: (rfpId: string): Promise<AxiosResponse<ApiResponse<ComparisonResult>>> =>
+    api.get(`/compare/rfp/${rfpId}`),
+
+  selectVendor: (proposalId: string): Promise<AxiosResponse<ApiResponse<any>>> =>
+    api.post('/compare/select-vendor', { proposalId }),
+};
+
+// Email Receiver API
+export const emailReceiverAPI = {
+  startPolling: (intervalSeconds?: number): Promise<AxiosResponse<ApiResponse<any>>> =>
+    api.post('/email-receiver/start', { intervalSeconds }),
+
+  stopPolling: (): Promise<AxiosResponse<ApiResponse<any>>> =>
+    api.post('/email-receiver/stop'),
+
+  checkNow: (): Promise<AxiosResponse<ApiResponse<any>>> =>
+    api.post('/email-receiver/check-now'),
+
+  getStatus: (): Promise<AxiosResponse<ApiResponse<EmailReceiverStatus>>> =>
+    api.get('/email-receiver/status'),
 };
 
 export default api;

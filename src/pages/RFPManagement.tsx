@@ -47,6 +47,7 @@ const RFPManagement = () => {
       setDeletingId(rfp._id);
       try {
         await rfpAPI.deleteRFP(rfp._id);
+        // Refresh after delete
         const response = await rfpAPI.getAllRFPs(statusFilter || undefined, searchTerm || undefined);
         dispatch(rfpActions.setAllRFPs(response.data.data));
       } catch (err) {
@@ -68,6 +69,7 @@ const RFPManagement = () => {
           </div>
 
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+            {/* Search Input */}
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -156,6 +158,8 @@ const RFPManagement = () => {
             </div>
           )}
         </div>
+
+        {/* Modals */}
         {viewRFP && createPortal(
           <ViewRFPModal rfp={viewRFP} onClose={() => setViewRFP(null)} />,
           document.body

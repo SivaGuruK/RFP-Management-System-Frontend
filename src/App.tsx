@@ -7,6 +7,7 @@ import CompareProposal from "./pages/CompareProposal";
 import Inboxpage from "./pages/InboxPage";
 import { Provider } from 'react-redux';
 import store from './store';
+import CompareProposalsList from "./cards/CompareProposalsList";
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
       <Route path="/create-rfp" element={<CreateRFP />}/>
       <Route path="/vendors" element={<VendorsManagement />}/>
       <Route path="/rfps" element={<RFPManagement />} />
-      <Route path="/compare" element={<CompareProposal />}/>
+      <Route path="/compare" element={<CompareProposalsList />}/>
+      <Route path="/compare/:rfpId" element={<CompareProposal />}/>
       <Route path="/inbox" element={<Inboxpage/>}/>
     </Routes>
     </Provider>
