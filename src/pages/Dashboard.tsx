@@ -30,7 +30,16 @@ export default function Dashboard() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
-  const avgResponseTime = "3.2d";
+    const mappedRFPs = recentRFPs.map((rfp) => ({
+  id: rfp._id,
+  title: rfp.title,
+  status: rfp.status,
+  budget: rfp.budget,
+  vendors: rfp.vendorsSent?.length || 0,
+  items: rfp.items?.length || 0,
+  created: new Date(rfp.createdAt).toLocaleDateString(),
+}));
+
 
   const handleCreateRFP = () => {
     navigate('/create-rfp');
@@ -51,7 +60,17 @@ export default function Dashboard() {
     <AppLayout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p>Overview of your procurement activities</p>
+          <p className="text-gray-600">Overview of your procurement activities</p>
+
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm mt-2">
+            <h2 className="text-lg font-semibold text-blue-700">About This Application</h2>
+            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+              This AI-powered RFP (Request For proposal) Management System automates procurement end-to-end. You can create 
+              structured RFPs from natural language, manage vendors, send RFPs via email, receive and 
+              auto-parse incoming vendor responses using AI, and compare proposals with intelligent 
+              recommendations to make faster, data-driven decisions.
+            </p>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatsCard
@@ -65,18 +84,18 @@ export default function Dashboard() {
             icon={<Clock className="w-10 h-10 text-orange-500" />}
           />
           <StatsCard
+            label="RFP's Sent"
+            value={dashboardStats?.sent || 0}
+            icon={<BarChart3 className="w-10 h-10 text-purple-500" />}
+          />
+          <StatsCard
             label="Total Vendors"
             value={vendors.length}
             icon={<Users className="w-10 h-10 text-green-500" />}
           />
-          <StatsCard
-            label="Avg. Response Time"
-            value={avgResponseTime}
-            icon={<BarChart3 className="w-10 h-10 text-purple-500" />}
-          />
         </div>
 
-        <RecentRFPs rfps={recentRFPs} onCreate={handleCreateRFP} />
+        <RecentRFPs rfps={mappedRFPs} onCreate={handleCreateRFP} />
       </div>
     </AppLayout>
   );
