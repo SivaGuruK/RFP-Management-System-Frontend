@@ -41,9 +41,6 @@ export default function CompareProposalsList() {
             >
               <div>
                 <h2 className="font-semibold">{rfp.title}</h2>
-                <p className="text-sm text-gray-600">
-                  {rfp.vendorsSent?.length || 0} proposals received
-                </p>
               </div>
 
               <button

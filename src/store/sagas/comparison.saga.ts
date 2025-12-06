@@ -13,38 +13,12 @@ interface ApiResponse<T> {
 
 function* compareProposalsSaga(action: ReturnType<typeof comparisonActions.compareProposals>) {
   try {
-    const response: AxiosResponse<ApiResponse<any>> = yield call(
+    const response: AxiosResponse<ApiResponse<ComparisonResult>> = yield call(
       comparisonAPI.compareProposals,
       action.payload.rfpId
     );
 
-    const apiData = response.data.data;
-
-    const mappedResult: ComparisonResult = {
-      scores: apiData.comparison.scores.map((s: any) => ({
-        proposalId: s.proposalId,
-        score: s.score,
-        strengths: s.strengths,
-        weaknesses: s.weaknesses,
-        priceScore: s.priceScore,
-        deliveryScore: s.deliveryScore,
-        warrantyScore: s.warrantyScore,
-        valueScore: s.valueScore,
-        vendorName: s.vendorName,
-      })),
-      reasoning: apiData.comparison.reasoning,
-      topRecommendation: {
-        vendor: apiData.comparison.topVendor,
-        score: apiData.comparison.scores.find((s: any) => s.vendorName === apiData.comparison.topVendor)?.score || 0,
-        price: apiData.comparison.scores.find((s: any) => s.vendorName === apiData.comparison.topVendor)?.priceScore || 0,
-        deliveryTime: `${apiData.comparison.scores.find((s: any) => s.vendorName === apiData.comparison.topVendor)?.deliveryScore || 0} days`,
-        warranty: `${apiData.comparison.scores.find((s: any) => s.vendorName === apiData.comparison.topVendor)?.warrantyScore || 0}-year`,
-        recommendation: apiData.comparison.reasoning,
-      },
-      proposals: [],
-    };
-
-    yield put(comparisonActions.compareProposalsSuccess(mappedResult));
+    yield put(comparisonActions.compareProposalsSuccess(response.data.data));
   } catch (error) {
     yield put(comparisonActions.compareProposalsFailure(error as string));
   }

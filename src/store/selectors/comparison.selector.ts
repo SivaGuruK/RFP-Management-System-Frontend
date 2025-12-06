@@ -11,6 +11,9 @@ export const comparisonSelectors = {
   selectTopRecommendation: (state: RootState) =>
     state.comparison.comparisonResult?.topRecommendation || null,
   
-  selectAllComparisonScores: (state: RootState) =>
-    state.comparison.comparisonResult?.scores || [],
+  selectAllProposals: (state: RootState) =>
+    state.comparison.comparisonResult?.proposals || [],
+    
+  selectRFPInfo: (state: RootState) =>
+    state.comparison.comparisonResult?.rfp || null,
 };

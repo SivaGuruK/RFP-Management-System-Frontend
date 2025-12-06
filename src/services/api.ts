@@ -4,7 +4,7 @@ import { type Vendor } from '../store/types/vendor.types';
 import type{ Email, SendRFPToVendorsPayload, SendRFPToVendorsResponse } from '../store/types/email.types';
 import {type ComparisonResult } from '../store/types/comparison.types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
 
 interface ApiResponse<T> {
   success: boolean;
