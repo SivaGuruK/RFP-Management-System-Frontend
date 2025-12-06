@@ -44,7 +44,7 @@ export default function CompareProposalsList() {
               </div>
 
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
                 onClick={() => handleCompare(rfp._id)}
               >
                 Compare
