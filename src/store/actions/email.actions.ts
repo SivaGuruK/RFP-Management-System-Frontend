@@ -1,8 +1,3 @@
-// ============================================
-// PART 9: EMAIL ACTIONS
-// ============================================
-// src/store/actions/email.actions.ts - CREATE THIS FILE
-
 import { EMAIL_ACTION_TYPES } from '../types/email.actionTypes';
 import type{ Email, SendRFPToVendorsResponse } from '../types/email.types';
 

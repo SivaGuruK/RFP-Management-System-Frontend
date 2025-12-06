@@ -1,8 +1,9 @@
-// src/cards/EmailDetailModal.tsx - CREATE THIS NEW FILE
-
 import React from "react";
 import { X, Mail, Calendar, ArrowRight, Paperclip } from "lucide-react";
 import {type Email } from "../store/types/email.types";
+import { formatDate } from "../utils/date";
+import StatusBadge from "../ui/StatusBadge";
+import { extractEmailInfo } from "../utils/email";
 
 interface EmailDetailModalProps {
   email: Email;
@@ -10,60 +11,11 @@ interface EmailDetailModalProps {
 }
 
 const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) => {
-  // Safely check if vendor info is populated
-  const vendorName = 
-    email.vendorId && typeof email.vendorId === 'object' && email.vendorId.name
-      ? email.vendorId.name
-      : 'Unknown Vendor';
+  const { vendorName, vendorEmail, rfpTitle } = extractEmailInfo(email);
   
-  const vendorEmail = 
-    email.vendorId && typeof email.vendorId === 'object' && email.vendorId.email
-      ? email.vendorId.email
-      : email.from;
-
-  // Safely check if RFP info is populated
-  const rfpTitle = 
-    email.rfpId && typeof email.rfpId === 'object' && email.rfpId.title
-      ? email.rfpId.title
-      : 'Unknown RFP';
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch (error) {
-      return 'Invalid date';
-    }
-  };
-
-  // Status badge color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'received':
-        return 'bg-blue-100 text-blue-700';
-      case 'parsed':
-        return 'bg-green-100 text-green-700';
-      case 'sent':
-        return 'bg-gray-100 text-gray-700';
-      case 'failed':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex items-start justify-between">
           <div className="flex items-start gap-4 flex-1">
             <div className="bg-white bg-opacity-20 p-3 rounded-lg">
@@ -72,13 +24,7 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-1">{email.subject}</h2>
               <div className="flex items-center gap-2 text-blue-100">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                    email.status
-                  )}`}
-                >
-                  {email.status.charAt(0).toUpperCase() + email.status.slice(1)}
-                </span>
+                <StatusBadge status={email.status} />
                 {email.status === 'parsed' && (
                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
                     Auto-Parsed
@@ -95,24 +41,19 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Email Metadata */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* From */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-1">From</div>
               <div className="font-semibold text-gray-900">{vendorName}</div>
               <div className="text-sm text-gray-600">{vendorEmail}</div>
             </div>
 
-            {/* To */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-1">To</div>
               <div className="font-semibold text-gray-900">{email.to}</div>
             </div>
 
-            {/* Date */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-1 flex items-center gap-2">
                 <Calendar size={16} />
@@ -127,7 +68,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
               </div>
             </div>
 
-            {/* Direction */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-1 flex items-center gap-2">
                 <ArrowRight size={16} />
@@ -138,8 +78,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
               </div>
             </div>
           </div>
-
-          {/* RFP Reference */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="text-sm text-blue-700 font-medium mb-1">
               Related RFP
@@ -147,7 +85,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
             <div className="text-blue-900 font-semibold">{rfpTitle}</div>
           </div>
 
-          {/* Attachments */}
           {email.attachments && email.attachments.length > 0 && (
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm text-gray-600 mb-3 flex items-center gap-2">
@@ -167,8 +104,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
               </div>
             </div>
           )}
-
-          {/* Email Body */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="text-sm text-gray-600 font-medium mb-3">
               Message
@@ -180,7 +115,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
             </div>
           </div>
 
-          {/* Parsed Proposal Link */}
           {email.status === 'parsed' && email.parsedProposalId && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center justify-between">
@@ -199,8 +133,6 @@ const EmailDetailModal: React.FC<EmailDetailModalProps> = ({ email, onClose }) =
             </div>
           )}
         </div>
-
-        {/* Footer */}
         <div className="border-t border-gray-200 p-4 bg-gray-50 flex justify-end gap-3">
           <button
             onClick={onClose}

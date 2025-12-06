@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { AlertCircle, Save, Loader2, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { GeneratedRFP, RFPItem } from "../store/types/rfp.types";
+import { isRFPValid } from "../utils/rfp";
+import { useToast } from "../ui/Toast";
 
 interface RFPAIPreviewCardProps {
   generatedRFP: GeneratedRFP;
@@ -14,6 +16,8 @@ const RFPAIPreviewCard: React.FC<RFPAIPreviewCardProps> = ({
   onSave,
   loading = false,
 }) => {
+  const { showToast } = useToast();
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<GeneratedRFP>(generatedRFP);
@@ -55,31 +59,19 @@ const RFPAIPreviewCard: React.FC<RFPAIPreviewCardProps> = ({
       items: prev.items.filter((_, i) => i !== index),
     }));
   };
-
-  const isFormValid = useMemo(() => {
-    if (!formData.title.trim()) return false;
-    if (!formData.description.trim()) return false;
-    if (!formData.budget || formData.budget <= 0) return false;
-    if (!formData.deliveryTimeline?.trim()) return false;
-    if (!formData.paymentTerms?.trim()) return false;
-    if (!formData.warrantyRequired?.trim()) return false;
-
-    if (!formData.items.length) return false;
-
-    for (const item of formData.items) {
-      if (!item.name.trim()) return false;
-      if (!item.quantity || item.quantity <= 0) return false;
-      if (!item.specifications.trim()) return false;
-    }
-
-    return true;
-  }, [formData]);
+  
+  const isFormValid = useMemo(() => isRFPValid(formData), [formData]);
 
   const handleSubmit = async () => {
     if (!isFormValid) return;
 
-    await onSave(formData);
-    navigate("/rfps");
+    try {
+      await onSave(formData);
+      showToast("RFP saved successfully!", "success");
+      navigate("/rfps");
+    } catch (error) {
+      showToast("Failed to save RFP. Please try again.", "error");
+    }
   };
 
   return (

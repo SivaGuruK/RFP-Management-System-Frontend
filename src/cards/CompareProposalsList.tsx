@@ -14,14 +14,12 @@ export default function CompareProposalsList() {
   const loading = useAppSelector(rfpSelectors.selectRFPLoading);
 
   useEffect(() => {
-    dispatch(rfpActions.getAllRFPs()); // Fetch RFPs via Redux
+    dispatch(rfpActions.getAllRFPs());
   }, [dispatch]);
 
   const handleCompare = async (rfpId: string) => {
     try {
-      // Dispatch POST API to /api/v1/compare/analyze
       await dispatch(comparisonActions.compareProposals(rfpId));
-      // Navigate to compare page
       navigate(`/compare/${rfpId}`);
     } catch (err) {
       console.error("Comparison API failed", err);

@@ -8,9 +8,11 @@ import Inboxpage from "./pages/InboxPage";
 import { Provider } from 'react-redux';
 import store from './store';
 import CompareProposalsList from "./cards/CompareProposalsList";
+import { ToastProvider } from "./ui/Toast";
 
 function App() {
   return (
+    <ToastProvider>
     <Provider store={store}>
     <Routes>
       <Route path="/" element={ <Dashboard />}/>
@@ -23,6 +25,7 @@ function App() {
       <Route path="/inbox" element={<Inboxpage/>}/>
     </Routes>
     </Provider>
+    </ToastProvider>
   )
 }
 

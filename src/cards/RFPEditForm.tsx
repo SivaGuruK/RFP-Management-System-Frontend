@@ -1,26 +1,7 @@
 import React, { useState } from "react";
 import { rfpAPI } from "../services/api";
 import { X } from "lucide-react";
-
-interface FullRFP {
-  _id: string;
-  title: string;
-  description: string;
-  budget: number;
-  items: Array<{
-    _id: string;
-    name: string;
-    quantity: number;
-    specifications: string;
-  }>;
-  deliveryTimeline: string;
-  paymentTerms: string;
-  warrantyRequired: string;
-  status: string;
-  vendorsSent: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { type FullRFP } from "../store/types/rfp.types";
 
 const Modal = ({ children, onClose, wide = false }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) => (
   <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4" onClick={onClose}>
@@ -44,9 +25,9 @@ export const EditRFPModal = ({ rfp, onClose, onSave }: { rfp: FullRFP; onClose: 
     title: rfp.title,
     description: rfp.description,
     budget: rfp.budget,
-    deliveryTimeline: rfp.deliveryTimeline,
-    paymentTerms: rfp.paymentTerms,
-    warrantyRequired: rfp.warrantyRequired,
+    deliveryTimeline: rfp.deliveryTimeline || '',
+    paymentTerms: rfp.paymentTerms || '',
+    warrantyRequired: rfp.warrantyRequired || '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -174,7 +155,7 @@ export const EditRFPModal = ({ rfp, onClose, onSave }: { rfp: FullRFP; onClose: 
             <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-48 overflow-y-auto">
               <div className="space-y-2">
                 {rfp.items.map((item, index) => (
-                  <div key={item._id} className="text-sm flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
+                  <div key={item._id || index} className="text-sm flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
                     <span className="font-medium text-gray-800">
                       {index + 1}. {item.name}
                     </span>

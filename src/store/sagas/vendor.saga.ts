@@ -75,21 +75,6 @@ function* deleteVendorSaga(action: ReturnType<typeof vendorActions.deleteVendor>
   }
 }
 
-// Update Vendor Stats Saga
-function* updateVendorStatsSaga(action: ReturnType<typeof vendorActions.updateVendorStats>) {
-  try {
-    const { id, stats } = action.payload;
-    const response: AxiosResponse<ApiResponse<Vendor>> = yield call(
-      vendorAPI.updateVendorStats,
-      id,
-      stats
-    );
-    yield put(vendorActions.updateVendorStatsSuccess(response.data.data));
-  } catch (error) {
-    yield put(vendorActions.updateVendorStatsFailure(error as string));
-  }
-}
-
 // Watcher Saga
 export function* watchVendor() {
   yield takeLatest(VENDOR_ACTION_TYPES.CREATE_VENDOR_REQUEST, createVendorSaga);
@@ -97,5 +82,4 @@ export function* watchVendor() {
   yield takeLatest(VENDOR_ACTION_TYPES.GET_VENDOR_BY_ID_REQUEST, getVendorByIdSaga);
   yield takeLatest(VENDOR_ACTION_TYPES.UPDATE_VENDOR_REQUEST, updateVendorSaga);
   yield takeLatest(VENDOR_ACTION_TYPES.DELETE_VENDOR_REQUEST, deleteVendorSaga);
-  yield takeLatest(VENDOR_ACTION_TYPES.UPDATE_VENDOR_STATS_REQUEST, updateVendorStatsSaga);
 }

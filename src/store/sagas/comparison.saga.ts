@@ -20,7 +20,6 @@ function* compareProposalsSaga(action: ReturnType<typeof comparisonActions.compa
 
     const apiData = response.data.data;
 
-    // Map API response to our ComparisonResult
     const mappedResult: ComparisonResult = {
       scores: apiData.comparison.scores.map((s: any) => ({
         proposalId: s.proposalId,
@@ -42,7 +41,7 @@ function* compareProposalsSaga(action: ReturnType<typeof comparisonActions.compa
         warranty: `${apiData.comparison.scores.find((s: any) => s.vendorName === apiData.comparison.topVendor)?.warrantyScore || 0}-year`,
         recommendation: apiData.comparison.reasoning,
       },
-      proposals: [], // you can also include full proposal objects if API returns them
+      proposals: [],
     };
 
     yield put(comparisonActions.compareProposalsSuccess(mappedResult));
@@ -63,20 +62,7 @@ function* getComparisonResultsSaga(action: ReturnType<typeof comparisonActions.g
   }
 }
 
-function* selectVendorSaga(action: ReturnType<typeof comparisonActions.selectVendor>) {
-  try {
-    const response: AxiosResponse<ApiResponse<any>> = yield call(
-      comparisonAPI.selectVendor,
-      action.payload.proposalId
-    );
-    yield put(comparisonActions.selectVendorSuccess(response.data.data));
-  } catch (error) {
-    yield put(comparisonActions.selectVendorFailure(error as string));
-  }
-}
-
 export function* watchComparison() {
   yield takeLatest(COMPARISON_ACTION_TYPES.COMPARE_PROPOSALS_REQUEST, compareProposalsSaga);
   yield takeLatest(COMPARISON_ACTION_TYPES.GET_COMPARISON_RESULTS_REQUEST, getComparisonResultsSaga);
-  yield takeLatest(COMPARISON_ACTION_TYPES.SELECT_VENDOR_REQUEST, selectVendorSaga);
 }

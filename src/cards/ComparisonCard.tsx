@@ -17,8 +17,7 @@ interface ComparisonCardProps {
 }
 
 const ComparisonCard: React.FC<ComparisonCardProps> = ({ proposal, onSelect }) => (
-  <div
-    className={`border-2 rounded-xl p-6 cursor-pointer ${
+  <div className={`border-2 rounded-xl p-6 cursor-pointer ${
       proposal.score >= 90 ? "border-green-500 bg-green-50" : "border-gray-200 bg-white"
     }`}
     onClick={() => onSelect && onSelect(proposal.id)}

@@ -6,8 +6,11 @@ import { useAppDispatch, useAppSelector } from "../store";
 import { rfpActions } from "../store/actions/rfp.actions";
 import { rfpSelectors } from "../store/selectors/rfp.selector";
 import {type GeneratedRFP } from "../store/types/rfp.types";
+import { useToast } from "../ui/Toast";
 
 const CreateRFP = () => {
+  const { showToast } = useToast();
+
   const dispatch = useAppDispatch();
 
   const generatedRFP = useAppSelector(rfpSelectors.selectGeneratedRFP);
@@ -45,25 +48,16 @@ const CreateRFP = () => {
     };
   }, [dispatch]);
 
+useEffect(() => {
+  if (error) showToast(error, "error");
+  if (success) showToast("RFP created successfully!", "success");
+}, [error, success]);
 
   return (
     <AppLayout>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Create New RFP</h1>
         <p>Use AI to structure your procurement needs</p>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            RFP created successfully!
-          </div>
-        )}
-
         <RFPInputCard
           description={description}
           onDescriptionChange={setDescription}

@@ -17,7 +17,6 @@ type EmailAction = {
 
 const emailReducer = (state = initialState, action: EmailAction): EmailState => {
   switch (action.type) {
-    // Send RFP to Vendors
     case EMAIL_ACTION_TYPES.SEND_RFP_TO_VENDORS_REQUEST:
       return {
         ...state,
@@ -43,7 +42,6 @@ const emailReducer = (state = initialState, action: EmailAction): EmailState => 
         sendResult: null,
       };
 
-    // Get All Emails
     case EMAIL_ACTION_TYPES.GET_ALL_EMAILS_REQUEST:
       return {
         ...state,
@@ -65,7 +63,6 @@ const emailReducer = (state = initialState, action: EmailAction): EmailState => 
         error: action.payload,
       };
 
-    // Get Emails by RFP
     case EMAIL_ACTION_TYPES.GET_EMAILS_BY_RFP_REQUEST:
       return {
         ...state,
@@ -87,7 +84,6 @@ const emailReducer = (state = initialState, action: EmailAction): EmailState => 
         error: action.payload,
       };
 
-    // Get Email by ID
     case EMAIL_ACTION_TYPES.GET_EMAIL_BY_ID_REQUEST:
       return {
         ...state,
@@ -110,7 +106,6 @@ const emailReducer = (state = initialState, action: EmailAction): EmailState => 
         error: action.payload,
       };
 
-    // Clear Errors
     case EMAIL_ACTION_TYPES.CLEAR_EMAIL_ERRORS:
       return {
         ...state,

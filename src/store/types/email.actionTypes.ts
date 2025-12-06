@@ -1,5 +1,3 @@
-// src/store/types/email.actionTypes.ts - CREATE THIS FILE
-
 export enum EMAIL_ACTION_TYPES {
   // Send RFP to Vendors
   SEND_RFP_TO_VENDORS_REQUEST = 'SEND_RFP_TO_VENDORS_REQUEST',

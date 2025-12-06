@@ -4,35 +4,17 @@ import StatusBadge from "../ui/StatusBadge";
 import ViewRFPModal from "./RFPViewCard";
 import { EditRFPModal } from "./RFPEditForm";
 import { rfpAPI } from "../services/api";
+import {type FullRFP } from "../store/types/rfp.types";
+import { useToast } from "../ui/Toast";
 
 interface RFP {
   id: string;
   title: string;
   status: string;
-  budget: number;
+  budget?: number; 
   vendors: number;
   items: number;
   created: string;
-}
-
-interface FullRFP {
-  _id: string;
-  title: string;
-  description: string;
-  budget: number;
-  items: Array<{
-    _id: string;
-    name: string;
-    quantity: number;
-    specifications: string;
-  }>;
-  deliveryTimeline: string;
-  paymentTerms: string;
-  warrantyRequired: string;
-  status: string;
-  vendorsSent: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface RecentRFPsProps {
@@ -41,6 +23,8 @@ interface RecentRFPsProps {
 }
 
 const RecentRFPs: React.FC<RecentRFPsProps> = ({ rfps, onCreate }) => {
+  const { showToast } = useToast();
+
   const [viewRFP, setViewRFP] = useState<FullRFP | null>(null);
   const [editRFP, setEditRFP] = useState<FullRFP | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,14 +42,13 @@ const RecentRFPs: React.FC<RecentRFPsProps> = ({ rfps, onCreate }) => {
       }
     } catch (error) {
       console.error('Error fetching RFP:', error);
-      alert('Failed to load RFP details. Please try again.');
+      showToast('Failed to load RFP details.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const handleSaveComplete = () => {
-    // Trigger parent refresh - you might want to pass a refresh callback
     window.location.reload();
   };
 
@@ -95,7 +78,7 @@ const RecentRFPs: React.FC<RecentRFPsProps> = ({ rfps, onCreate }) => {
                   <StatusBadge status={rfp.status} />
                 </div>
                 <div className="flex items-center gap-6 mt-2 text-sm text-gray-600">
-                  <span>Budget: ₹{rfp.budget.toLocaleString()}</span>
+                  <span>Budget: ₹{rfp.budget?.toLocaleString() || 'N/A'}</span>
                   <span>Vendors Sent: {rfp.vendors}</span>
                   <span>Items: {rfp.items}</span>
                   <span>Created: {rfp.created}</span>
@@ -139,4 +122,4 @@ const RecentRFPs: React.FC<RecentRFPsProps> = ({ rfps, onCreate }) => {
   );
 };
 
-export default RecentRFPs
+export default RecentRFPs;

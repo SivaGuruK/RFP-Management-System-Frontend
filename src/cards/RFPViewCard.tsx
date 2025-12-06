@@ -1,26 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import StatusBadge from "../ui/StatusBadge";
-
-interface FullRFP {
-  _id: string;
-  title: string;
-  description: string;
-  budget: number;
-  items: Array<{
-    _id: string;
-    name: string;
-    quantity: number;
-    specifications: string;
-  }>;
-  deliveryTimeline: string;
-  paymentTerms: string;
-  warrantyRequired: string;
-  status: string;
-  vendorsSent: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { type FullRFP } from "../store/types/rfp.types";
 
 const Modal = ({ children, onClose, wide = false }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) => {  
   return (
@@ -70,7 +51,9 @@ const ViewRFPModal = ({ rfp, onClose }: { rfp: FullRFP; onClose: () => void }) =
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Budget</span>
-              <p className="text-2xl font-bold text-gray-900 mt-1">₹{rfp.budget.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">
+                ₹{rfp.budget?.toLocaleString() || 'N/A'}
+              </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</span>
@@ -107,7 +90,7 @@ const ViewRFPModal = ({ rfp, onClose }: { rfp: FullRFP; onClose: () => void }) =
             </h3>
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {rfp.items.map((item, index) => (
-                <div key={item._id} className="border border-gray-200 p-4 rounded-lg bg-white hover:shadow-md transition-shadow">
+                <div key={item._id || index} className="border border-gray-200 p-4 rounded-lg bg-white hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-2">
                     <span className="font-semibold text-gray-900">
                       <span className="text-blue-600 mr-2">{index + 1}.</span>

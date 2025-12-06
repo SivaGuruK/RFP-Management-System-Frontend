@@ -26,17 +26,20 @@ export default function CompareProposal() {
 
   if (loading || !comparisonResult) return <AppLayout>Loading...</AppLayout>;
 
-  // Map proposals safely
-  const mappedProposals = comparisonResult.proposals?.map((p) => ({
-    id: p.id,
-    vendor: p.vendor?.name || "Unknown Vendor",
-    score: p.score || 0,
-    price: p.price || 0,
-    delivery: p.deliveryTime || "N/A",
-    warranty: p.warranty || "N/A",
-    strengths: p.strengths || [],
-    weaknesses: p.weaknesses || [],
-  })) || [];
+  const mappedProposals = comparisonResult.proposals?.map((p) => {
+  const scoreData = comparisonResult.scores?.find(s => s.proposalId === p._id);
+    
+    return {
+      id: p._id,
+      vendor: typeof p.vendorId === 'object' ? p.vendorId.name : "Unknown Vendor",
+      score: scoreData?.score || p.aiScore || 0,
+      price: p.price || 0,
+      delivery: p.deliveryTime || "N/A",
+      warranty: p.warranty || "N/A",
+      strengths: scoreData?.strengths || p.aiAnalysis?.strengths || [],
+      weaknesses: scoreData?.weaknesses || p.aiAnalysis?.weaknesses || [],
+    };
+  }) || [];
 
   const topRecommendation = comparisonResult.topRecommendation;
 
@@ -48,12 +51,17 @@ export default function CompareProposal() {
 
         <div className="bg-white rounded-xl border p-6">
           <h2 className="text-xl font-bold mb-4">
-            Proposal Comparison – {comparisonResult.rfp?.title || "RFP"}
+            Proposal Comparison – {
+              comparisonResult.proposals?.[0] && 
+              typeof comparisonResult.proposals[0].rfpId === 'object' 
+                ? comparisonResult.proposals[0].rfpId.title 
+                : "RFP"
+            }
           </h2>
 
           {topRecommendation && (
             <AIComparison
-              vendor={topRecommendation.vendor?.name || "Unknown Vendor"}
+              vendor={topRecommendation.vendor}
               price={topRecommendation.price}
               warranty={topRecommendation.warranty}
               delivery={topRecommendation.deliveryTime}

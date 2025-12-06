@@ -4,39 +4,76 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/AppLayout";
 import { useAppDispatch, useAppSelector } from "../store";
 import { rfpActions } from "../store/actions/rfp.actions";
+import { emailActions } from "../store/actions/email.actions";
+import { vendorActions } from "../store/actions/vendor.actions";
 import { rfpSelectors } from "../store/selectors/rfp.selector";
-import { type RFP } from "../store/types/rfp.types";
-import { Loader2, Plus, Edit, Trash2, Eye, Search } from "lucide-react";
+import { emailSelectors } from "../store/selectors/email.selector";
+import { vendorSelectors } from "../store/selectors/vendor.selector";
+import { type RFP, type FullRFP } from "../store/types/rfp.types";
+import { Loader2, Plus, Edit, Trash2, Eye, Search, Send } from "lucide-react";
 import ViewRFPModal from "../cards/RFPViewCard";
 import { EditRFPModal } from "../cards/RFPEditForm";
+import VendorSelectionModal from "../cards/VendorSelectionModal";
 import { rfpAPI } from "../services/api";
+import { useToast } from "../ui/Toast";
 
 const RFPManagement = () => {
+  const { showToast } = useToast();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const rfps = useAppSelector(rfpSelectors.selectAllRFPs);
   const loading = useAppSelector(rfpSelectors.selectRFPLoading);
   const error = useAppSelector(rfpSelectors.selectRFPError);
+  
+  const vendors = useAppSelector(vendorSelectors.selectAllVendors);
+  const emailLoading = useAppSelector(emailSelectors.selectEmailLoading);
+  const emailSuccess = useAppSelector(emailSelectors.selectEmailSuccess);
+  const sendResult = useAppSelector(emailSelectors.selectSendResult);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [viewRFP, setViewRFP] = useState<RFP | null>(null);
-  const [editRFP, setEditRFP] = useState<RFP | null>(null);
+  const [viewRFP, setViewRFP] = useState<FullRFP | null>(null);
+  const [editRFP, setEditRFP] = useState<FullRFP | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [sendRFP, setSendRFP] = useState<RFP | null>(null);
+  const [showVendorModal, setShowVendorModal] = useState(false);
 
   useEffect(() => {
     const fetchRFPs = async () => {
       dispatch(rfpActions.clearErrors());
       try {
-        const response = await rfpAPI.getAllRFPs(statusFilter || undefined, searchTerm || undefined);
-        dispatch(rfpActions.setAllRFPs(response.data.data));
+        const response = await rfpAPI.getAllRFPs();
+        dispatch(rfpActions.getAllRFPsSuccess(response.data.data));
       } catch (err) {
         console.error(err);
       }
     };
     fetchRFPs();
-  }, [dispatch, statusFilter, searchTerm]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(vendorActions.getAllVendors());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (emailSuccess && sendResult) {
+      showToast(`RFP sent successfully to ${sendResult.sent} vendor(s)!`, "success");
+      dispatch(emailActions.clearErrors());
+      setShowVendorModal(false);
+      setSendRFP(null);
+
+      const fetchRFPs = async () => {
+        try {
+          const response = await rfpAPI.getAllRFPs();
+          dispatch(rfpActions.getAllRFPsSuccess(response.data.data));
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchRFPs();
+    }
+  }, [emailSuccess, sendResult, dispatch]);
 
   const handleCreateRFP = () => {
     navigate("/create-rfp");
@@ -47,17 +84,51 @@ const RFPManagement = () => {
       setDeletingId(rfp._id);
       try {
         await rfpAPI.deleteRFP(rfp._id);
-        // Refresh after delete
-        const response = await rfpAPI.getAllRFPs(statusFilter || undefined, searchTerm || undefined);
-        dispatch(rfpActions.setAllRFPs(response.data.data));
+        const response = await rfpAPI.getAllRFPs();
+        dispatch(rfpActions.getAllRFPsSuccess(response.data.data));
       } catch (err) {
         console.error(err);
-        alert("Failed to delete RFP");
       } finally {
         setDeletingId(null);
       }
     }
   };
+
+  const handleSendRFP = (rfp: RFP) => {
+    setSendRFP(rfp);
+    setShowVendorModal(true);
+  };
+
+  const handleSendEmails = (selectedVendorIds: string[]) => {
+    if (sendRFP) {
+      dispatch(emailActions.sendRFPToVendors(sendRFP._id, selectedVendorIds));
+    }
+  };
+
+  const handleViewRFP = async (rfp: RFP) => {
+    try {
+      const response = await rfpAPI.getRFPById(rfp._id);
+      setViewRFP(response.data.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load RFP details");
+    }
+  };
+
+  const handleEditRFP = async (rfp: RFP) => {
+    try {
+      const response = await rfpAPI.getRFPById(rfp._id);
+      setEditRFP(response.data.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load RFP details");
+    }
+  };
+
+  const filteredRFPs = rfps.filter((rfp) =>
+    rfp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    rfp.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <AppLayout>
@@ -69,12 +140,11 @@ const RFPManagement = () => {
           </div>
 
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-            {/* Search Input */}
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search RFPs by title"
+                placeholder="Search RFPs by title or description"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
@@ -94,7 +164,7 @@ const RFPManagement = () => {
               <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
               <span className="ml-4 text-xl text-gray-600">Loading RFPs...</span>
             </div>
-          ) : rfps.length === 0 ? (
+          ) : filteredRFPs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <p className="text-gray-500 mb-6">No RFPs found</p>
               <button
@@ -107,15 +177,23 @@ const RFPManagement = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rfps.map((rfp) => (
+              {filteredRFPs.map((rfp) => (
                 <div
                   key={rfp._id}
                   className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all border border-gray-100"
                 >
                   <div className="flex items-start justify-end gap-2 mb-4">
                     <button
-                      onClick={() => setEditRFP(rfp)}
-                      className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all"
+                      onClick={() => handleSendRFP(rfp)}
+                      className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Send RFP to Vendors"
+                      disabled={rfp.status !== "draft"}
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleEditRFP(rfp)}
+                      className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Edit RFP"
                       disabled={rfp.status !== "draft"}
                     >
@@ -133,7 +211,7 @@ const RFPManagement = () => {
                       )}
                     </button>
                     <button
-                      onClick={() => setViewRFP(rfp)}
+                      onClick={() => handleViewRFP(rfp)}
                       className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-all"
                       title="View RFP"
                     >
@@ -142,10 +220,19 @@ const RFPManagement = () => {
                   </div>
 
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{rfp.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{rfp.description}</p>
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-2">{rfp.description}</p>
                   <div className="flex justify-between items-center text-gray-700 text-sm mt-4">
-                    <span>Status: <strong>{rfp.status}</strong></span>
-                    <span>Budget: ₹{rfp.budget.toLocaleString()}</span>
+                    <span className="flex items-center gap-1">
+                      <span className={`w-2 h-2 rounded-full ${
+                        rfp.status === "draft" ? "bg-yellow-500" :
+                        rfp.status === "sent" ? "bg-blue-500" :
+                        rfp.status === "responses" ? "bg-purple-500" :
+                        rfp.status === "evaluated" ? "bg-green-500" :
+                        "bg-gray-500"
+                      }`} />
+                      <strong className="capitalize">{rfp.status}</strong>
+                    </span>
+                    <span>₹{rfp.budget?.toLocaleString() || 'N/A'}</span>
                   </div>
                 </div>
               ))}
@@ -159,7 +246,6 @@ const RFPManagement = () => {
           )}
         </div>
 
-        {/* Modals */}
         {viewRFP && createPortal(
           <ViewRFPModal rfp={viewRFP} onClose={() => setViewRFP(null)} />,
           document.body
@@ -170,10 +256,25 @@ const RFPManagement = () => {
             rfp={editRFP}
             onClose={() => setEditRFP(null)}
             onSave={async () => {
-              const response = await rfpAPI.getAllRFPs(statusFilter || undefined, searchTerm || undefined);
-              dispatch(rfpActions.setAllRFPs(response.data.data));
+              const response = await rfpAPI.getAllRFPs();
+              dispatch(rfpActions.getAllRFPsSuccess(response.data.data));
               setEditRFP(null);
             }}
+          />,
+          document.body
+        )}
+
+        {showVendorModal && sendRFP && createPortal(
+          <VendorSelectionModal
+            isOpen={showVendorModal}
+            onClose={() => {
+              setShowVendorModal(false);
+              setSendRFP(null);
+            }}
+            vendors={vendors}
+            onSendEmails={handleSendEmails}
+            loading={emailLoading}
+            rfpTitle={sendRFP.title}
           />,
           document.body
         )}
